@@ -6,7 +6,7 @@ namespace User.Management.API.Controllers
     ////[Authorize(Roles ="Admin")]
     [Route("api/[controller]")]
     [ApiController]   
-    public class AdminController : ControllerBase
+    public class SuperAdminController : ControllerBase
     {
         [HttpGet("employees")]
         public IEnumerable<string> Get()

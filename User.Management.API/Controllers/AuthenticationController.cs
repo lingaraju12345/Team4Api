@@ -285,20 +285,38 @@ namespace User.Management.API.Controllers
             var isOTPValid = await _userManager.VerifyTwoFactorTokenAsync(userLogin, "Email", storedOTP);
 
             if (isOTPValid)
-            {
-                // OTP matches, proceed with generating token or other actions
-                // ...
 
-                return StatusCode(StatusCodes.Status200OK,
-                    new Response { Status = "Success", Message = "OTP verified. Login successful." });
-            }
-            else
             {
-                // OTP doesn't match, return an error
-                return StatusCode(StatusCodes.Status401Unauthorized,
-                    new Response { Status = "Failed to Login", Message = $"Invalid verification Code" });
+                    var userRoles = await _userManager.GetRolesAsync(userLogin);
+
+                        var authClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, userLogin.UserName),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                };
+                    
+                    foreach (var role in userRoles)
+                    {
+                        authClaims.Add(new Claim(ClaimTypes.Role, role));
+                    }
+
+                    var jwtToken = GetToken(authClaims);
+
+                    return Ok(new
+                    {
+                        token = new JwtSecurityTokenHandler().WriteToken(jwtToken),
+                        expiration = jwtToken.ValidTo,
+                        role = userRoles.Contains("SuperAdmin") ? "SuperAdmin" : "NotSuperAdmin"
+                    });
+
+                    }
+                    else
+                     {
+                    // OTP doesn't match, return an error
+                    return StatusCode(StatusCodes.Status401Unauthorized,
+                        new Response { Status = "Failed to Login", Message = $"Invalid verification Code" });
+                     }
             }
-        }
         catch (Exception ex)
         {
             // Log the exception for debugging purposes

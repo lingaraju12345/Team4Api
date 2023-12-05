@@ -34,16 +34,11 @@ namespace User.Management.Service.Services
             using var smtp = new MailKit.Net.Smtp.SmtpClient();
             smtp.CheckCertificateRevocation = false;
             try
-            {
-
-                
-                
-                smtp.Connect(_emailConfig.SmtpServer, _emailConfig.Port, SecureSocketOptions.StartTls);
-                
+            {               
+                smtp.Connect(_emailConfig.SmtpServer, _emailConfig.Port, SecureSocketOptions.StartTls);                
                 smtp.Authenticate(_emailConfig.UserName, _emailConfig.Password);
                 smtp.Send(mailMessage);
-
-            }
+              }
             catch
             {
                 //log an error message or throw an exception or both.

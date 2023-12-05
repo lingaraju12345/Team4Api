@@ -10,6 +10,9 @@ namespace User.Management.API.Models
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
+
+        
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -28,11 +31,5 @@ namespace User.Management.API.Models
 
                 );
         }
-        //public virtual DbSet<AspNetUserManager<IdentityUser>> Users { get; set; }
-        //public virtual DbSet<AspNetRoleManager<IdentityRole>> Roles { get; set; }
-
-
-
-
     }
 }
