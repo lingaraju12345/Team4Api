@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace User.Management.API.Migrations
 {
-    public partial class migrations : Migration
+    public partial class migr : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -46,6 +46,21 @@ namespace User.Management.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LogDetails",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LoginInfo = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LogDetails", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -157,17 +172,17 @@ namespace User.Management.API.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "2858cd8b-dcaa-461c-ad9a-a8b2f231f755", "3", "Users", "Users" });
+                values: new object[] { "11b78e09-c4dc-4fe4-b619-7ef0c7dbaa4e", "3", "Users", "Users" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "c783e954-6c5d-4459-bbd0-6aa8d015edb8", "1", "SuperAdmin", "SuperAdmin" });
+                values: new object[] { "4ce889b2-73b5-4593-b44a-25640acc7168", "2", "Admin", "Admin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "cfda6f0d-2f26-4c5b-859c-513ad8b126fa", "2", "Admin", "Admin" });
+                values: new object[] { "7fb64f38-b68b-402f-bc7e-cc68fb89b13e", "1", "SuperAdmin", "SuperAdmin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -225,6 +240,9 @@ namespace User.Management.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "LogDetails");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using User.Management.API.Models.Authentication;
 using User.Management.API.Models.Authentication.SignUp;
 
 namespace User.Management.API.Models
@@ -11,7 +12,7 @@ namespace User.Management.API.Models
         {
         }
 
-        
+        public DbSet<LogDetails> LogDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

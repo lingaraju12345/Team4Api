@@ -1,33 +1,46 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using System;
 using System.Text;
 using User.Management.API.Models;
 using User.Management.Service.Models;
 using User.Management.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddCors(options => options.AddPolicy("prodpolicy", (polbuilder) =>
-{
-    polbuilder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
-}));
 
+// Add configurations
+builder.Configuration.AddJsonFile("appsettings.json");
+var configuration = builder.Configuration;
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("prodpolicy", builder => builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+});
 
 // For Entity Framework
-var configuration = builder.Configuration;
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("ConString")));
+try
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("ConString")));
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Exception during DbContext creation: {ex.Message}");
+}
 
 // For Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-//Add Config for Required Email
-builder.Services.Configure<IdentityOptions>(
-    opts => opts.SignIn.RequireConfirmedEmail = true
-    );
+// Add Config for Required Email
+builder.Services.Configure<IdentityOptions>(opts => opts.SignIn.RequireConfirmedEmail = true);
 
 // Adding Authentication
 builder.Services.AddAuthentication(options =>
@@ -49,21 +62,17 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
-//Add Email Configs
+// Add Email Configs
 var emailConfig = configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 builder.Services.AddSingleton(emailConfig);
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(option =>
-{
-});
-
-
+builder.Services.AddSwaggerGen(options => { /* configure Swagger options */ });
 
 var app = builder.Build();
 
@@ -73,6 +82,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 app.UseCors("prodpolicy");
 app.UseHttpsRedirection();
 

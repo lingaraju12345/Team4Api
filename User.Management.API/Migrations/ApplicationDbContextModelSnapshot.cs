@@ -51,21 +51,21 @@ namespace User.Management.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "c783e954-6c5d-4459-bbd0-6aa8d015edb8",
+                            Id = "7fb64f38-b68b-402f-bc7e-cc68fb89b13e",
                             ConcurrencyStamp = "1",
                             Name = "SuperAdmin",
                             NormalizedName = "SuperAdmin"
                         },
                         new
                         {
-                            Id = "cfda6f0d-2f26-4c5b-859c-513ad8b126fa",
+                            Id = "4ce889b2-73b5-4593-b44a-25640acc7168",
                             ConcurrencyStamp = "2",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
-                            Id = "2858cd8b-dcaa-461c-ad9a-a8b2f231f755",
+                            Id = "11b78e09-c4dc-4fe4-b619-7ef0c7dbaa4e",
                             ConcurrencyStamp = "3",
                             Name = "Users",
                             NormalizedName = "Users"
@@ -241,6 +241,30 @@ namespace User.Management.API.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("User.Management.API.Models.Authentication.LogDetails", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LoginInfo")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LogDetails");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

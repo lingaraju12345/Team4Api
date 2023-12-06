@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -7,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using User.Management.API.Models;
+using User.Management.API.Models.Authentication;
 using User.Management.API.Models.Authentication.Login;
 using User.Management.API.Models.Authentication.SignUp;
 using User.Management.Service.Models;
@@ -21,19 +23,20 @@ namespace User.Management.API.Controllers
         public UserManager<IdentityUser> _userManager;
         public SignInManager<IdentityUser> _signInManager;
         public RoleManager<IdentityRole> _roleManager;
-
+        private readonly ApplicationDbContext _context;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
 
         public AuthenticationController(UserManager<IdentityUser> userManager,
             RoleManager<IdentityRole> roleManager, IEmailService emailService,
-            SignInManager<IdentityUser> signInManager, IConfiguration configuration)
+            SignInManager<IdentityUser> signInManager, IConfiguration configuration, ApplicationDbContext context)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
             _emailService = emailService;
             _configuration = configuration;
+            _context = context;
         }
 
         [HttpPost]
@@ -302,6 +305,16 @@ namespace User.Management.API.Controllers
 
                     var jwtToken = GetToken(authClaims);
 
+                    // Log the successful login
+                    var logDetails = new LogDetails
+                    {
+                        Username = userLogin.UserName,
+                        Email = userLogin.Email,
+                        LoginInfo = DateTime.Now,
+                    };
+                    _context.LogDetails.Add(logDetails);
+                    await _context.SaveChangesAsync();
+
                     return Ok(new
                     {
                         token = new JwtSecurityTokenHandler().WriteToken(jwtToken),
@@ -326,9 +339,60 @@ namespace User.Management.API.Controllers
         }
     }
 
+        [HttpGet("LogDetails")]
+        
+        public async Task<IActionResult> GetLogDetails()
+        {
+            var logDetails = await _context.LogDetails.ToListAsync();
+            var log = logDetails.Select(p => new
+            {
+                Name = p.Username,
+                Email = p.Email,
+                DateTime = p.LoginInfo
+            }) ;
+
+            return Ok(log);
+        }
+
+        [HttpGet("LogDetailsByEmail")]
+        public async Task<IActionResult> GetLogByEmail(string email)
+        {
+            try
+            {
+                var logDetailsByEmail = await _context.LogDetails
+                    .Where(log => log.Email == email)
+                    .ToListAsync();
+
+                if (logDetailsByEmail == null || logDetailsByEmail.Count == 0)
+                {
+                    return StatusCode(StatusCodes.Status404NotFound,
+                        new Response { Status = "Error", Message = "No log details found for the specified email." });
+                }
+
+                var log = logDetailsByEmail.Select(p => new
+                {
+                    Name = p.Username,
+                    Email = p.Email,
+                    DateTime = p.LoginInfo
+                });
+
+                return Ok(log);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception for debugging purposes
+                Console.WriteLine($"Exception: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new Response { Status = "Error", Message = "Internal Server Error" });
+            }
+        }
 
 
-    private JwtSecurityToken GetToken(List<Claim> authClaims)
+
+
+
+
+        private JwtSecurityToken GetToken(List<Claim> authClaims)
     {
         var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
 
