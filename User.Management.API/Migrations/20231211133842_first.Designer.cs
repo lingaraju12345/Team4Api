@@ -12,8 +12,8 @@ using User.Management.API.Models;
 namespace User.Management.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231206094929_migr")]
-    partial class migr
+    [Migration("20231211133842_first")]
+    partial class first
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -53,21 +53,21 @@ namespace User.Management.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "7fb64f38-b68b-402f-bc7e-cc68fb89b13e",
+                            Id = "846ed3a8-cf01-45f1-accc-66754d16c88b",
                             ConcurrencyStamp = "1",
                             Name = "SuperAdmin",
                             NormalizedName = "SuperAdmin"
                         },
                         new
                         {
-                            Id = "4ce889b2-73b5-4593-b44a-25640acc7168",
+                            Id = "d120a7f9-20d8-48d6-9155-b9a3ff733c23",
                             ConcurrencyStamp = "2",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
-                            Id = "11b78e09-c4dc-4fe4-b619-7ef0c7dbaa4e",
+                            Id = "dad29345-7f88-4d10-836a-bb2c4e5d08b4",
                             ConcurrencyStamp = "3",
                             Name = "Users",
                             NormalizedName = "Users"
@@ -267,6 +267,35 @@ namespace User.Management.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("LogDetails");
+                });
+
+            modelBuilder.Entity("User.Management.API.Models.Authentication.SignUp.UserAdminRole", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
+
+                    b.Property<string>("AdminUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AdminUserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("UserAdminRole");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

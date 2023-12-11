@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -39,6 +38,10 @@ namespace User.Management.API.Controllers
             _context = context;
         }
 
+
+
+
+
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterUser registerUser)
         {
@@ -66,9 +69,29 @@ namespace User.Management.API.Controllers
 
                 await _userManager.AddToRoleAsync(user, registerUser.Role);
 
+                //Add admin to user....
+                
+                var adminUser = await _userManager.FindByNameAsync(registerUser.AdminUserName);
+                if (adminUser != null)
+                {
+                    var useradminrole = new UserAdminRole
+                    {
+                        UserName=registerUser.Username,
+                        UserEmail = registerUser.Email,
+                        AdminUserId= adminUser.Id,
+                        AdminUserName= adminUser.UserName
+                    };
+                    _context.UserAdminRoles.Add(useradminrole);
+                    await _context.SaveChangesAsync();
+                }
+
                 //Add Token to Verify the email....
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = user.Email }, Request.Scheme);
+                var verificationMessage = $" <div style='font-size:20px;'> Welcome to Featuremesh Application. </div><br>" +
+                $"<br> " +
+                $"Click on the below link to verify your email:<br>" +
+                $" <a href='{confirmationLink}'>{confirmationLink}</a>";
                 var message = new Message(new string[] { user.Email! }, "Confirmation email link", confirmationLink!);
                 _emailService.SendEmail(message);
 
@@ -87,6 +110,9 @@ namespace User.Management.API.Controllers
 
         }
 
+
+
+
         [HttpGet("ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmail(string token, string email)
         {
@@ -96,13 +122,18 @@ namespace User.Management.API.Controllers
                 var result = await _userManager.ConfirmEmailAsync(user, token);
                 if (result.Succeeded)
                 {
-                    return StatusCode(StatusCodes.Status200OK,
-                      new Response { Status = "Success", Message = "Email Verified Successfully" });
+                    var content = "<div style='font-family:Arial; text-align:center; font-size: 40px;'> Welcome to Featuremesh Application. </div> <br/>" +
+                        $"<br/><br/><br/><br/>" +
+                        $" <div style ='font-family:Times New Roman; text-align:center; font-size: 24px;'> Your Email has been verified successfully.</div><br/><br/><br/>" +
+                        $" <div style='font-family:Times New Roman; text-align:center; font-size:20px;'> Click on the link to start using the application.</div>" +
+                        $" <div style='text-align: center;'><a href='/your-start-link'>Explore the application</a></div>";
+
+                    return Content(content, "text/html");
                 }
             }
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                       new Response { Status = "Error", Message = "This User Doesnot exist!" });
+            return Content("<div style='color:red; font-family:Times New Roman; font-size:26px;'> This User does not exist</div> ", "text/html");
         }
+
 
 
 
@@ -147,28 +178,29 @@ namespace User.Management.API.Controllers
 
     
 
+
+
     [HttpGet("AllUsers")]
     public IActionResult GetAll()
     {
         var users = _userManager.Users.ToList();
-
-
-
 
         var dtousers = users.Select(p => new
         {
             ID = p.Id,
             Name = p.UserName,
             Email = p.Email,
-            Role = _userManager.GetRolesAsync(p).Result
-
+            Role = _userManager.GetRolesAsync(p).Result,
+            Admin= _context.UserAdminRoles.Where(r=>r.UserEmail==p.Email).Select(r=>r.AdminUserName).FirstOrDefault()
         });
 
         return Ok(dtousers);
 
     }
 
-    [HttpDelete("Delete")]
+
+
+        [HttpDelete("Delete")]
     public async Task<IActionResult> Delete(string Email)
     {
 
@@ -265,8 +297,6 @@ namespace User.Management.API.Controllers
     }
 
 
-
-
     [HttpPost]
     [Route("login-2FA")]
     public async Task<IActionResult> LoginWithOTP([FromBody] Loginotp loginotp)
@@ -339,8 +369,7 @@ namespace User.Management.API.Controllers
         }
     }
 
-        [HttpGet("LogDetails")]
-        
+        [HttpGet("LogDetails")]      
         public async Task<IActionResult> GetLogDetails()
         {
             var logDetails = await _context.LogDetails.ToListAsync();
@@ -350,7 +379,6 @@ namespace User.Management.API.Controllers
                 Email = p.Email,
                 DateTime = p.LoginInfo
             }) ;
-
             return Ok(log);
         }
 
@@ -362,40 +390,30 @@ namespace User.Management.API.Controllers
                 var logDetailsByEmail = await _context.LogDetails
                     .Where(log => log.Email == email)
                     .ToListAsync();
-
                 if (logDetailsByEmail == null || logDetailsByEmail.Count == 0)
                 {
                     return StatusCode(StatusCodes.Status404NotFound,
                         new Response { Status = "Error", Message = "No log details found for the specified email." });
                 }
-
                 var log = logDetailsByEmail.Select(p => new
                 {
                     Name = p.Username,
                     Email = p.Email,
                     DateTime = p.LoginInfo
                 });
-
                 return Ok(log);
             }
             catch (Exception ex)
             {
-                // Log the exception for debugging purposes
                 Console.WriteLine($"Exception: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     new Response { Status = "Error", Message = "Internal Server Error" });
             }
         }
 
-
-
-
-
-
         private JwtSecurityToken GetToken(List<Claim> authClaims)
     {
         var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
-
         var token = new JwtSecurityToken(
             issuer: _configuration["JWT:ValidIssuer"],
             audience: _configuration["JWT:ValidAudience"],
@@ -403,13 +421,7 @@ namespace User.Management.API.Controllers
             claims: authClaims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
             );
-
         return token;
     }
-
-
-
-
-
 }
 }

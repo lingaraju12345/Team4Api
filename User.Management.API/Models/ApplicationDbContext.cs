@@ -13,6 +13,7 @@ namespace User.Management.API.Models
         }
 
         public DbSet<LogDetails> LogDetails { get; set; }
+        public DbSet<UserAdminRole> UserAdminRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

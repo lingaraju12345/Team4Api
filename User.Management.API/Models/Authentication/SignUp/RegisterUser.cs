@@ -16,6 +16,8 @@ namespace User.Management.API.Models.Authentication.SignUp
 
         [Required(ErrorMessage = "User Role is required")]
         public string? Role { get; set; }
+        
+        public string? AdminUserName { get; set; }
 
 
     }
