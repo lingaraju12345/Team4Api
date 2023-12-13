@@ -9,5 +9,7 @@ namespace User.Management.API.Models.Authentication.SignUp
         public string? Email { get; set; }
         public string? Role { get; set; }
 
+        public string? Admin { get; set; }
+
     }
 }

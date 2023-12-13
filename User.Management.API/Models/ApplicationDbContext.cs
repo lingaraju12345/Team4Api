@@ -11,6 +11,13 @@ namespace User.Management.API.Models
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
+        public IQueryable<IdentityUser> GetUsersByRoleId(string roleId)
+        { var usersInRole = from userRole in UserRoles
+                            join user in Users on userRole.UserId 
+                            equals user.Id where userRole.RoleId == roleId select user;
+            
+            return usersInRole;
+        }
 
         public DbSet<LogDetails> LogDetails { get; set; }
         public DbSet<UserAdminRole> UserAdminRoles { get; set; }

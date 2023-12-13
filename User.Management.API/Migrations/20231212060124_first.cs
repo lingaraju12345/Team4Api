@@ -188,17 +188,17 @@ namespace User.Management.API.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "846ed3a8-cf01-45f1-accc-66754d16c88b", "1", "SuperAdmin", "SuperAdmin" });
+                values: new object[] { "12ebb0fe-24aa-4266-a449-cd5112325369", "1", "SuperAdmin", "SuperAdmin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "d120a7f9-20d8-48d6-9155-b9a3ff733c23", "2", "Admin", "Admin" });
+                values: new object[] { "a3f6c120-3859-474f-9148-13ee2ee242b3", "3", "Users", "Users" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "dad29345-7f88-4d10-836a-bb2c4e5d08b4", "3", "Users", "Users" });
+                values: new object[] { "b1853a67-e626-47ef-9b51-679faf48bde3", "2", "Admin", "Admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

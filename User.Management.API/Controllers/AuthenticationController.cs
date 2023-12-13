@@ -19,12 +19,14 @@ namespace User.Management.API.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
+        
         public UserManager<IdentityUser> _userManager;
         public SignInManager<IdentityUser> _signInManager;
         public RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
+       
 
         public AuthenticationController(UserManager<IdentityUser> userManager,
             RoleManager<IdentityRole> roleManager, IEmailService emailService,
@@ -39,12 +41,10 @@ namespace User.Management.API.Controllers
         }
 
 
-
-
-
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterUser registerUser)
         {
+
             //Check User Exist 
             var userExist = await _userManager.FindByEmailAsync(registerUser.Email);
             if (userExist != null)
@@ -52,66 +52,61 @@ namespace User.Management.API.Controllers
                 return StatusCode(StatusCodes.Status403Forbidden,
                     new Response { Status = "Error", Message = "User already exists!" });
             }
+          
 
-            //Add the User in the database
-            IdentityUser user = new()
-            {
-                Email = registerUser.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = registerUser.Username,
-                TwoFactorEnabled = true
-            };
-            if (await _roleManager.RoleExistsAsync(registerUser.Role))
-            {
-                var result = await _userManager.CreateAsync(user, registerUser.Password);
-
-                //Add role to the user....
-
-                await _userManager.AddToRoleAsync(user, registerUser.Role);
-
-                //Add admin to user....
-                
-                var adminUser = await _userManager.FindByNameAsync(registerUser.AdminUserName);
-                if (adminUser != null)
+                //Add the User in the database
+                IdentityUser user = new()
                 {
-                    var useradminrole = new UserAdminRole
+                    Email = registerUser.Email,
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    UserName = registerUser.Username,
+                    TwoFactorEnabled = true
+                };
+                if (await _roleManager.RoleExistsAsync(registerUser.Role))
+                {
+                    var result = await _userManager.CreateAsync(user, registerUser.Password);
+
+                    //Add role to the user....
+
+                    await _userManager.AddToRoleAsync(user, registerUser.Role);
+
+                    //Add admin to user....
+                    var adminUser = await _userManager.FindByNameAsync(registerUser.AdminUserName);
+                    if (adminUser != null)
                     {
-                        UserName=registerUser.Username,
-                        UserEmail = registerUser.Email,
-                        AdminUserId= adminUser.Id,
-                        AdminUserName= adminUser.UserName
-                    };
-                    _context.UserAdminRoles.Add(useradminrole);
-                    await _context.SaveChangesAsync();
+                        var useradminrole = new UserAdminRole
+                        {
+                            UserName = registerUser.Username,
+                            UserEmail = registerUser.Email,
+                            AdminUserId = adminUser.Id,
+                            AdminUserName = adminUser.UserName
+                        };
+                        _context.UserAdminRoles.Add(useradminrole);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    //Add Token to Verify the email....
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = user.Email }, Request.Scheme);
+                    var verificationMessage = $" <div style='font-size:20px;'> Welcome to Featuremesh Application. </div><br>" +
+                        $"<br> " +
+                        $"Click on the below link to verify your email:<br>" +
+                        $" <a href='{confirmationLink}'>{confirmationLink}</a>";
+                    var message = new Message(new string[] { user.Email! }, "Email Registration link", verificationMessage);
+                    _emailService.SendEmail(message);
+
+
+                    return StatusCode(StatusCodes.Status200OK,
+                        new Response { Status = "Success", Message = $"User created & Email Sent to {user.Email} SuccessFully" });
+
                 }
-
-                //Add Token to Verify the email....
-                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                var confirmationLink = Url.Action(nameof(ConfirmEmail), "Authentication", new { token, email = user.Email }, Request.Scheme);
-                var verificationMessage = $" <div style='font-size:20px;'> Welcome to Featuremesh Application. </div><br>" +
-                $"<br> " +
-                $"Click on the below link to verify your email:<br>" +
-                $" <a href='{confirmationLink}'>{confirmationLink}</a>";
-                var message = new Message(new string[] { user.Email! }, "Confirmation email link", confirmationLink!);
-                _emailService.SendEmail(message);
-
-
-
-                return StatusCode(StatusCodes.Status200OK,
-                    new Response { Status = "Success", Message = $"User created & Email Sent to {user.Email} SuccessFully" });
-
+                else
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError,
+                            new Response { Status = "Error", Message = "This Role Doesnot Exist." });
+                }
             }
-            else
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                        new Response { Status = "Error", Message = "This Role Doesnot Exist." });
-            }
-
-
-        }
-
-
-
+  
 
         [HttpGet("ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmail(string token, string email)
@@ -126,7 +121,7 @@ namespace User.Management.API.Controllers
                         $"<br/><br/><br/><br/>" +
                         $" <div style ='font-family:Times New Roman; text-align:center; font-size: 24px;'> Your Email has been verified successfully.</div><br/><br/><br/>" +
                         $" <div style='font-family:Times New Roman; text-align:center; font-size:20px;'> Click on the link to start using the application.</div>" +
-                        $" <div style='text-align: center;'><a href='/your-start-link'>Explore the application</a></div>";
+                        $" <div style='text-align: center;'><a href='https://blue-smoke-072511d0f.4.azurestaticapps.net'>Explore the application</a></div>";
 
                     return Content(content, "text/html");
                 }
@@ -197,6 +192,20 @@ namespace User.Management.API.Controllers
         return Ok(dtousers);
 
     }
+        [HttpGet("AdminUsers")]
+        public IActionResult AdminUsers()
+        {
+            var usersInRole = _context.GetUsersByRoleId("b1853a67-e626-47ef-9b51-679faf48bde3").ToList();
+
+            var Admins = usersInRole.Select(p => new
+            {
+                Name=p.UserName
+            });
+
+            return Ok(Admins);
+
+        }
+
 
 
 
@@ -255,8 +264,25 @@ namespace User.Management.API.Controllers
         await _userManager.RemoveFromRolesAsync(user, currentRoles);
         await _userManager.AddToRoleAsync(user, editUser.Role);
 
-        // Update user in the database
-        var result = await _userManager.UpdateAsync(user);
+            //Admin user
+            var adminUser = await _userManager.FindByNameAsync(editUser.Admin);
+            if (adminUser != null)
+            {
+                // Check if a UserAdminRole already exists for the user
+                var existingUserAdminRole = _context.UserAdminRoles
+                    .SingleOrDefault(uar => uar.UserEmail == editUser.Email);
+                if (existingUserAdminRole != null)
+                {
+                   
+                    
+                    existingUserAdminRole.AdminUserId = adminUser.Id;
+                    existingUserAdminRole.AdminUserName = adminUser.UserName;
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            // Update user in the database
+            var result = await _userManager.UpdateAsync(user);
 
         if (result.Succeeded)
         {
@@ -284,7 +310,8 @@ namespace User.Management.API.Controllers
                 ID = userEmail.Id,
                 Name = userEmail.UserName,
                 Email = userEmail.Email,
-                Role = _userManager.GetRolesAsync(userEmail).Result
+                Role = _userManager.GetRolesAsync(userEmail).Result,
+                Admin = _context.UserAdminRoles.Where(r => r.UserEmail == email).Select(r => r.AdminUserName).FirstOrDefault()
             };
 
             return Ok(dtoUser);
