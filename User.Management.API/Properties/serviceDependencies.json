@@ -3,6 +3,13 @@
     "apis1": {
       "type": "apis"
     },
+    "identityapp1": {
+      "ignored": "true",
+      "type": "identityapp"
+    },
+    "apis2": {
+      "type": "apis"
+    },
     "mssql1": {
       "type": "mssql",
       "connectionId": "ConnectionStrings:ConString",

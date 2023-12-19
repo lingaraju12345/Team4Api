@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "apis2": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.ApiManagement/service/UserManagementFeatureMarketPlaceAPI/apis/UserManagementAPI",
+      "type": "apis.azure"
+    },
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/UserManagemenFeatureMarketPlaceAPI/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsConString_E213FF090C",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/featuremarketplaceserver/databases/FeatureMarketPlaceOffline",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:ConString",
+      "dynamicId": null
+    }
+  }
+}

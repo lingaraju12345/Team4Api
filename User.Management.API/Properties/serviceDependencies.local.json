@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.ServiceLinker/locations/eastus/connectors/ConnectionStringsConString_E213FF090C",
+      "secretStore": "LocalSecretsFile",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/featuremarketplaceserver/databases/FeatureMarketPlaceOffline",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:ConString",
+      "dynamicId": null
+    },
+    "apis1": {
+      "ignored": "True",
+      "type": "apis"
+    }
+  }
+}

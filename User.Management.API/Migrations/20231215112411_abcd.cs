@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace User.Management.API.Migrations
 {
-    public partial class first : Migration
+    public partial class abcd : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -188,17 +188,17 @@ namespace User.Management.API.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "12ebb0fe-24aa-4266-a449-cd5112325369", "1", "SuperAdmin", "SuperAdmin" });
+                values: new object[] { "0c206cb8-2fb3-4e83-b4f5-caeddd6c8244", "2", "Admin", "Admin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "a3f6c120-3859-474f-9148-13ee2ee242b3", "3", "Users", "Users" });
+                values: new object[] { "77724232-4b63-4fd7-a3d0-215cd4881aa9", "1", "SuperAdmin", "SuperAdmin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "b1853a67-e626-47ef-9b51-679faf48bde3", "2", "Admin", "Admin" });
+                values: new object[] { "f4b367f1-0f84-4383-80ad-ed132d54b979", "3", "Users", "Users" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

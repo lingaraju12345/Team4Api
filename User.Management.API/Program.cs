@@ -19,9 +19,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json");
 var configuration = builder.Configuration;
 
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("prodpolicy", builder => builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+    options.AddPolicy("AllowSpecificOrigin",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
 });
 
 // For Entity Framework
@@ -83,7 +90,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("prodpolicy");
+app.UseCors("AllowSpecificOrigin");
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

@@ -10,9 +10,12 @@ namespace User.Management.API.Models.Authentication.SignUp
         [EmailAddress]
         [Required(ErrorMessage = "Email is required")]
         public string? Email { get; set; }
-
+        
         [Required(ErrorMessage = "Password is required")]
         public string? Password { get; set; }
+
+        //[Required(ErrorMessage = "Phone Number is required")]
+        //public string? PhoneNO { get; set; }
 
         [Required(ErrorMessage = "User Role is required")]
         public string? Role { get; set; }

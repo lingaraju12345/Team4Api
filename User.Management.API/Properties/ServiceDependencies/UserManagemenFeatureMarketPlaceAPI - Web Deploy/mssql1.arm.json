@@ -4,7 +4,7 @@
   "parameters": {
     "resourceGroupName": {
       "type": "string",
-      "defaultValue": "MeshResource",
+      "defaultValue": "FeatureMarketPlaceResource",
       "metadata": {
         "_parameterType": "resourceGroup",
         "description": "Name of the resource group for the resource. It is recommended to put resources under same resource group for better tracking."
@@ -36,7 +36,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "name": "[concat(parameters('resourceGroupName'), 'Deployment', uniqueString(concat('FeatureMeshOffline', subscription().subscriptionId)))]",
+      "name": "[concat(parameters('resourceGroupName'), 'Deployment', uniqueString(concat('FeatureMarketPlaceOffline', subscription().subscriptionId)))]",
       "resourceGroup": "[parameters('resourceGroupName')]",
       "apiVersion": "2019-10-01",
       "dependsOn": [
@@ -51,7 +51,7 @@
             {
               "kind": "v12.0",
               "location": "[parameters('resourceLocation')]",
-              "name": "featuremarketmeshserver",
+              "name": "featuremarketplaceserver",
               "type": "Microsoft.Sql/servers",
               "apiVersion": "2017-10-01-preview"
             },
@@ -64,11 +64,11 @@
               },
               "kind": "v12.0,user,vcore,serverless",
               "location": "[parameters('resourceLocation')]",
-              "name": "featuremarketmeshserver/FeatureMeshOffline",
+              "name": "featuremarketplaceserver/FeatureMarketPlaceOffline",
               "type": "Microsoft.Sql/servers/databases",
               "apiVersion": "2017-10-01-preview",
               "dependsOn": [
-                "featuremarketmeshserver"
+                "featuremarketplaceserver"
               ]
             }
           ]

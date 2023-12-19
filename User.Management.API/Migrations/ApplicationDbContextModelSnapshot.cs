@@ -51,21 +51,21 @@ namespace User.Management.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "12ebb0fe-24aa-4266-a449-cd5112325369",
+                            Id = "77724232-4b63-4fd7-a3d0-215cd4881aa9",
                             ConcurrencyStamp = "1",
                             Name = "SuperAdmin",
                             NormalizedName = "SuperAdmin"
                         },
                         new
                         {
-                            Id = "b1853a67-e626-47ef-9b51-679faf48bde3",
+                            Id = "0c206cb8-2fb3-4e83-b4f5-caeddd6c8244",
                             ConcurrencyStamp = "2",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
-                            Id = "a3f6c120-3859-474f-9148-13ee2ee242b3",
+                            Id = "f4b367f1-0f84-4383-80ad-ed132d54b979",
                             ConcurrencyStamp = "3",
                             Name = "Users",
                             NormalizedName = "Users"
